@@ -170,7 +170,7 @@ fetch(API_BASE_URL + '/issues')
     });
 
 
-// Show the selected tab and highlight its button
+// selected tab and highlight its button
 function switchTab(activeTabId) {
     tabAllBtn.classList.remove('btn-primary');
     tabAllBtn.classList.add('btn-outline');
@@ -197,4 +197,47 @@ function switchTab(activeTabId) {
         closedSection.style.display = 'block';
     }
 }
+
+// Live search
+let searchDebounceTimer = null;
+
+issueSearchBox.addEventListener('input', function() {
+    const query = issueSearchBox.value.trim();
+
+    if (!query) {
+        searchSection.style.display = 'none';
+        document.getElementById('tabContainer').style.display = 'flex';
+        switchTab('tabAll');
+        return;
+    }
+
+    document.getElementById('tabContainer').style.display = 'none';
+    allSection.style.display    = 'none';
+    openSection.style.display   = 'none';
+    closedSection.style.display = 'none';
+    searchSection.style.display = 'block';
+
+    searchCountLabel.textContent = 'Searching...';
+    searchGrid.innerHTML = '';
+
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(function() {
+        fetch(API_BASE_URL + '/issues/search?q=' + encodeURIComponent(query))
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(payload) {
+                const results = payload.data;
+
+                if (results.length === 0) {
+                    searchCountLabel.textContent = 'No results for "' + query + '"';
+                    searchGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">No issues found.</p>';
+                    return;
+                }
+
+                searchCountLabel.textContent = results.length + ' result' + (results.length > 1 ? 's' : '') + ' for "' + query + '"';
+                renderIssueCards(results, searchGrid);
+            });
+    }, 300);
+});
 
