@@ -71,3 +71,130 @@ function buildLabelsHTML(labels) {
 
     return labelsHTML;
 }
+
+// Build a single issue card DOM element
+function createIssueCard(issue) {
+    let borderClass = '';
+    let iconSrc = '';
+
+    if (issue.status === 'open') {
+        borderClass = 'border-t-green-500';
+        iconSrc = 'assets/Open-Status.png';
+    } else if (issue.status === 'closed') {
+        borderClass = 'border-t-purple-500';
+        iconSrc = 'assets/Closed- Status .png';
+    } else {
+        borderClass = 'border-t-gray-400';
+        iconSrc = 'assets/Aperture.png';
+    }
+
+    const priority = issue.priority || '';
+    let priorityBadge = '';
+
+    if (priority.toLowerCase() === 'high') {
+        priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-50 rounded">${priority.toUpperCase()}</span>`;
+    } else if (priority.toLowerCase() === 'medium') {
+        priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-50 rounded">${priority.toUpperCase()}</span>`;
+    } else {
+        priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">${priority.toUpperCase()}</span>`;
+    }
+
+    const labelsHTML = buildLabelsHTML(issue.labels);
+    const author = issue.author || 'Unknown';
+    const date = new Date(issue.createdAt).toLocaleDateString();
+
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-lg border border-gray-200 border-t-4 ' + borderClass + ' p-4 shadow-sm';
+    card.innerHTML = `
+        <div onclick="openIssueDetail(${issue.id})" class="cursor-pointer">
+            <div class="flex items-start justify-between mb-3">
+                <img src="${iconSrc}" alt="Status Icon" class="w-6 h-6" />
+                ${priorityBadge}
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 mb-2">${issue.title}</h3>
+            <p class="text-xs text-gray-600 mb-3 leading-relaxed">${issue.description || 'No description available.'}</p>
+            <div class="flex flex-wrap gap-2 mb-3">${labelsHTML}</div>
+            <div class="text-xs text-gray-500 pt-2 border-t border-gray-100">
+                <p class="mb-0.5">#${issue.id} by ${author}</p>
+                <p>${date}</p>
+            </div>
+        </div>`;
+
+    return card;
+}
+
+
+// Append all issue cards into a grid container
+function renderIssueCards(issueList, targetGrid) {
+    issueList.forEach(function(issue) {
+        targetGrid.appendChild(createIssueCard(issue));
+    });
+}
+
+
+// Fetch all issues once, then separate into open and closed lists
+fetch(API_BASE_URL + '/issues')
+    .then(function(res) {
+        return res.json();
+    })
+    .then(function(payload) {
+        // Artificial delay so the loading spinner is visible
+        return new Promise(function(resolve) {
+            setTimeout(function() { resolve(payload); }, 2000);
+        });
+    })
+    .then(function(payload) {
+        const allIssues = payload.data;
+        const openIssues = [];
+        const closedIssues = [];
+
+        allIssues.forEach(function(issue) {
+            if (issue.status === 'open') {
+                openIssues.push(issue);
+            } else if (issue.status === 'closed') {
+                closedIssues.push(issue);
+            }
+        });
+
+        if (allSpinner) allSpinner.remove();
+        if (openSpinner) openSpinner.remove();
+        if (closedSpinner) closedSpinner.remove();
+
+        allTotalLabel.textContent    = allIssues.length + ' Issues';
+        openTotalLabel.textContent   = openIssues.length + ' Issues';
+        closedTotalLabel.textContent = closedIssues.length + ' Issues';
+
+        renderIssueCards(allIssues,    allGrid);
+        renderIssueCards(openIssues,   openGrid);
+        renderIssueCards(closedIssues, closedGrid);
+    });
+
+
+// Show the selected tab and highlight its button
+function switchTab(activeTabId) {
+    tabAllBtn.classList.remove('btn-primary');
+    tabAllBtn.classList.add('btn-outline');
+    tabOpenBtn.classList.remove('btn-primary');
+    tabOpenBtn.classList.add('btn-outline');
+    tabClosedBtn.classList.remove('btn-primary');
+    tabClosedBtn.classList.add('btn-outline');
+
+    allSection.style.display    = 'none';
+    openSection.style.display   = 'none';
+    closedSection.style.display = 'none';
+
+    if (activeTabId === 'tabAll') {
+        tabAllBtn.classList.remove('btn-outline');
+        tabAllBtn.classList.add('btn-primary');
+        allSection.style.display = 'block';
+    } else if (activeTabId === 'tabOpen') {
+        tabOpenBtn.classList.remove('btn-outline');
+        tabOpenBtn.classList.add('btn-primary');
+        openSection.style.display = 'block';
+    } else if (activeTabId === 'tabClosed') {
+        tabClosedBtn.classList.remove('btn-outline');
+        tabClosedBtn.classList.add('btn-primary');
+        closedSection.style.display = 'block';
+    }
+}
+
