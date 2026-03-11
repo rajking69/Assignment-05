@@ -241,3 +241,53 @@ issueSearchBox.addEventListener('input', function() {
     }, 300);
 });
 
+
+
+
+
+
+// show detailed info of an issue in a modal when its card is clicked
+function openIssueDetail(issueId) {
+    fetch(API_BASE_URL + '/issue/' + issueId)
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(payload) {
+            const issue = payload.data;
+
+            document.getElementById('detailTitle').textContent = issue.title;
+
+            const statusEl = document.getElementById('detailStatus');
+            if (issue.status === 'open') {
+                statusEl.textContent = 'Opened';
+                statusEl.className = 'px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full';
+            } else {
+                statusEl.textContent = 'Closed';
+                statusEl.className = 'px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full';
+            }
+
+            document.getElementById('detailAuthor').textContent = issue.author || 'Unknown';
+            document.getElementById('detailDate').textContent = new Date(issue.createdAt).toLocaleDateString('en-GB');
+
+            document.getElementById('detailLabels').innerHTML = buildLabelsHTML(issue.labels);
+
+            document.getElementById('detailDescription').textContent = issue.description || 'No description available.';
+
+            document.getElementById('detailAssignee').textContent = issue.assignee || issue.author || 'Not assigned';
+
+            const priorityEl = document.getElementById('detailPriority');
+            const issuePriority = issue.priority || 'n/a';
+
+            if (issuePriority.toLowerCase() === 'high') {
+                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-red-500 rounded-full uppercase';
+            } else if (issuePriority.toLowerCase() === 'medium') {
+                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-yellow-500 rounded-full uppercase';
+            } else {
+                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-gray-500 rounded-full uppercase';
+            }
+
+            priorityEl.textContent = issuePriority.toUpperCase();
+
+            issueDetailModal.showModal();
+        });
+}
