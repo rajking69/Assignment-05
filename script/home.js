@@ -1,30 +1,30 @@
 const API_BASE_URL = 'https://phi-lab-server.vercel.app/api/v1/lab';
 
 // DOM references
-const tabAllBtn    = document.getElementById('tabAll');
-const tabOpenBtn   = document.getElementById('tabOpen');
+const tabAllBtn = document.getElementById('tabAll');
+const tabOpenBtn = document.getElementById('tabOpen');
 const tabClosedBtn = document.getElementById('tabClosed');
 
-const allSection    = document.getElementById('allIssuesSection');
-const openSection   = document.getElementById('openIssuesSection');
+const allSection = document.getElementById('allIssuesSection');
+const openSection = document.getElementById('openIssuesSection');
 const closedSection = document.getElementById('closedIssuesSection');
 const searchSection = document.getElementById('searchResultsSection');
 
-const allGrid    = document.getElementById('allIssuesGrid');
-const openGrid   = document.getElementById('openIssuesGrid');
+const allGrid = document.getElementById('allIssuesGrid');
+const openGrid = document.getElementById('openIssuesGrid');
 const closedGrid = document.getElementById('closedIssuesGrid');
 const searchGrid = document.getElementById('searchResultsGrid');
 
-const allSpinner    = document.getElementById('allSpinner');
-const openSpinner   = document.getElementById('openSpinner');
+const allSpinner = document.getElementById('allSpinner');
+const openSpinner = document.getElementById('openSpinner');
 const closedSpinner = document.getElementById('closedSpinner');
 
-const allTotalLabel    = document.getElementById('allIssueTotal');
-const openTotalLabel   = document.getElementById('openIssueTotal');
+const allTotalLabel = document.getElementById('allIssueTotal');
+const openTotalLabel = document.getElementById('openIssueTotal');
 const closedTotalLabel = document.getElementById('closedIssueTotal');
 
 const searchCountLabel = document.getElementById('searchResultsCount');
-const issueSearchBox   = document.getElementById('issueSearchBox');
+const issueSearchBox = document.getElementById('issueSearchBox');
 const issueDetailModal = document.getElementById('issueDetailModal');
 
 
@@ -36,7 +36,7 @@ function buildLabelsHTML(labels) {
 
     let labelsHTML = '';
 
-    labels.forEach(function(label) {
+    labels.forEach(function (label) {
         const labelLower = label.toLowerCase();
         let icon = '';
         let bg = '';
@@ -44,24 +44,24 @@ function buildLabelsHTML(labels) {
 
         if (labelLower === 'bug') {
             icon = '🪲';
-            bg   = 'bg-red-50';
+            bg = 'bg-red-50';
             text = 'text-red-600';
         } else if (labelLower === 'help wanted') {
             icon = '⭕';
-            bg   = 'bg-green-50';
+            bg = 'bg-green-50';
             text = 'text-green-600';
         } else if (labelLower === 'enhancement') {
             icon = '✨';
-            bg   = 'bg-purple-50';
+            bg = 'bg-purple-50';
             text = 'text-purple-600';
         } else if (labelLower === 'good first issue') {
             icon = '🖊️';
-            bg   = 'bg-orange-50';
+            bg = 'bg-orange-50';
             text = 'text-orange-600';
         } else {
             icon = '🏷️';
-            bg   = 'bg-yellow-50';
-            text = 'text-yellow-700';
+            bg = 'bg-blue-50';
+            text = 'text-blue-700';
         }
 
         labelsHTML += `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold ${text} ${bg} rounded-full">
@@ -126,7 +126,7 @@ function createIssueCard(issue) {
 
 // Append all issue cards into a grid container
 function renderIssueCards(issueList, targetGrid) {
-    issueList.forEach(function(issue) {
+    issueList.forEach(function (issue) {
         targetGrid.appendChild(createIssueCard(issue));
     });
 }
@@ -134,21 +134,15 @@ function renderIssueCards(issueList, targetGrid) {
 
 // Fetch all issues once, then separate into open and closed lists
 fetch(API_BASE_URL + '/issues')
-    .then(function(res) {
+    .then(function (res) {
         return res.json();
     })
-    .then(function(payload) {
-        // Artificial delay so the loading spinner is visible
-        return new Promise(function(resolve) {
-            setTimeout(function() { resolve(payload); }, 2000);
-        });
-    })
-    .then(function(payload) {
+    .then(function (payload) {
         const allIssues = payload.data;
         const openIssues = [];
         const closedIssues = [];
 
-        allIssues.forEach(function(issue) {
+        allIssues.forEach(function (issue) {
             if (issue.status === 'open') {
                 openIssues.push(issue);
             } else if (issue.status === 'closed') {
@@ -160,12 +154,12 @@ fetch(API_BASE_URL + '/issues')
         if (openSpinner) openSpinner.remove();
         if (closedSpinner) closedSpinner.remove();
 
-        allTotalLabel.textContent    = allIssues.length + ' Issues';
-        openTotalLabel.textContent   = openIssues.length + ' Issues';
+        allTotalLabel.textContent = allIssues.length + ' Issues';
+        openTotalLabel.textContent = openIssues.length + ' Issues';
         closedTotalLabel.textContent = closedIssues.length + ' Issues';
 
-        renderIssueCards(allIssues,    allGrid);
-        renderIssueCards(openIssues,   openGrid);
+        renderIssueCards(allIssues, allGrid);
+        renderIssueCards(openIssues, openGrid);
         renderIssueCards(closedIssues, closedGrid);
     });
 
@@ -179,8 +173,8 @@ function switchTab(activeTabId) {
     tabClosedBtn.classList.remove('btn-primary');
     tabClosedBtn.classList.add('btn-outline');
 
-    allSection.style.display    = 'none';
-    openSection.style.display   = 'none';
+    allSection.style.display = 'none';
+    openSection.style.display = 'none';
     closedSection.style.display = 'none';
 
     if (activeTabId === 'tabAll') {
@@ -201,7 +195,7 @@ function switchTab(activeTabId) {
 // Live search
 let searchDebounceTimer = null;
 
-issueSearchBox.addEventListener('input', function() {
+issueSearchBox.addEventListener('input', function () {
     const query = issueSearchBox.value.trim();
 
     if (!query) {
@@ -212,8 +206,8 @@ issueSearchBox.addEventListener('input', function() {
     }
 
     document.getElementById('tabContainer').style.display = 'none';
-    allSection.style.display    = 'none';
-    openSection.style.display   = 'none';
+    allSection.style.display = 'none';
+    openSection.style.display = 'none';
     closedSection.style.display = 'none';
     searchSection.style.display = 'block';
 
@@ -221,12 +215,12 @@ issueSearchBox.addEventListener('input', function() {
     searchGrid.innerHTML = '';
 
     clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(function() {
+    searchDebounceTimer = setTimeout(function () {
         fetch(API_BASE_URL + '/issues/search?q=' + encodeURIComponent(query))
-            .then(function(res) {
+            .then(function (res) {
                 return res.json();
             })
-            .then(function(payload) {
+            .then(function (payload) {
                 const results = payload.data;
 
                 if (results.length === 0) {
@@ -245,49 +239,38 @@ issueSearchBox.addEventListener('input', function() {
 
 
 
-
 // show detailed info of an issue in a modal when its card is clicked
-function openIssueDetail(issueId) {
-    fetch(API_BASE_URL + '/issue/' + issueId)
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(payload) {
-            const issue = payload.data;
+async function openIssueDetail(issueId) {
+    const res = await fetch(API_BASE_URL + '/issue/' + issueId);
+    const payload = await res.json();
+    const issue = payload.data;
+    const isOpen = issue.status === 'open';
+    const priority = (issue.priority || 'n/a').toLowerCase();
+    const statusClasses = {
+        open: 'px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full',
+        closed: 'px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full',
+    };
 
-            document.getElementById('detailTitle').textContent = issue.title;
+    const priorityClasses = {
+        high: 'inline-block px-4 py-1 text-xs font-bold text-white bg-red-500 rounded-full uppercase',
+        medium: 'inline-block px-4 py-1 text-xs font-bold text-white bg-yellow-500 rounded-full uppercase',
+    };
 
-            const statusEl = document.getElementById('detailStatus');
-            if (issue.status === 'open') {
-                statusEl.textContent = 'Opened';
-                statusEl.className = 'px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full';
-            } else {
-                statusEl.textContent = 'Closed';
-                statusEl.className = 'px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full';
-            }
+    const statusEl = document.getElementById('detailStatus');
+    const priorityEl = document.getElementById('detailPriority');
 
-            document.getElementById('detailAuthor').textContent = issue.author || 'Unknown';
-            document.getElementById('detailDate').textContent = new Date(issue.createdAt).toLocaleDateString('en-GB');
+    document.getElementById('detailTitle').textContent = issue.title;
+    document.getElementById('detailAuthor').textContent = issue.author || 'Unknown';
+    document.getElementById('detailDate').textContent = new Date(issue.createdAt).toLocaleDateString('en-GB');
+    document.getElementById('detailDescription').textContent = issue.description || 'No description available.';
+    document.getElementById('detailAssignee').textContent = issue.assignee || issue.author || 'Not assigned';
+    document.getElementById('detailLabels').innerHTML = buildLabelsHTML(issue.labels);
+    statusEl.textContent = isOpen ? 'Opened' : 'Closed';
+    statusEl.className = isOpen ? statusClasses.open : statusClasses.closed;
 
-            document.getElementById('detailLabels').innerHTML = buildLabelsHTML(issue.labels);
+    priorityEl.textContent = priority.toUpperCase();
+    priorityEl.className = priorityClasses[priority] ||
+        'inline-block px-4 py-1 text-xs font-bold text-white bg-gray-500 rounded-full uppercase';
 
-            document.getElementById('detailDescription').textContent = issue.description || 'No description available.';
-
-            document.getElementById('detailAssignee').textContent = issue.assignee || issue.author || 'Not assigned';
-
-            const priorityEl = document.getElementById('detailPriority');
-            const issuePriority = issue.priority || 'n/a';
-
-            if (issuePriority.toLowerCase() === 'high') {
-                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-red-500 rounded-full uppercase';
-            } else if (issuePriority.toLowerCase() === 'medium') {
-                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-yellow-500 rounded-full uppercase';
-            } else {
-                priorityEl.className = 'inline-block px-4 py-1 text-xs font-bold text-white bg-gray-500 rounded-full uppercase';
-            }
-
-            priorityEl.textContent = issuePriority.toUpperCase();
-
-            issueDetailModal.showModal();
-        });
+    issueDetailModal.showModal();
 }
