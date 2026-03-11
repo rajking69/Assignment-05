@@ -95,7 +95,7 @@ function createIssueCard(issue) {
         priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-50 rounded">${priority.toUpperCase()}</span>`;
     } else if (priority.toLowerCase() === 'medium') {
         priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-50 rounded">${priority.toUpperCase()}</span>`;
-    } else {
+    } else if (priority) {
         priorityBadge = `<span class="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">${priority.toUpperCase()}</span>`;
     }
 
@@ -138,7 +138,7 @@ fetch(API_BASE_URL + '/issues')
         return res.json();
     })
     .then(function (payload) {
-        const allIssues = payload.data;
+        const allIssues = payload.data || [];
         const openIssues = [];
         const closedIssues = [];
 
@@ -161,6 +161,12 @@ fetch(API_BASE_URL + '/issues')
         renderIssueCards(allIssues, allGrid);
         renderIssueCards(openIssues, openGrid);
         renderIssueCards(closedIssues, closedGrid);
+    })
+    .catch(function () {
+        if (allSpinner) allSpinner.remove();
+        if (openSpinner) openSpinner.remove();
+        if (closedSpinner) closedSpinner.remove();
+        allGrid.innerHTML = '<p class="col-span-full text-center text-red-500 py-10">Failed to load issues. Please try again.</p>';
     });
 
 
@@ -221,7 +227,7 @@ issueSearchBox.addEventListener('input', function () {
                 return res.json();
             })
             .then(function (payload) {
-                const results = payload.data;
+                const results = payload.data || [];
 
                 if (results.length === 0) {
                     searchCountLabel.textContent = 'No results for "' + query + '"';
@@ -231,6 +237,9 @@ issueSearchBox.addEventListener('input', function () {
 
                 searchCountLabel.textContent = results.length + ' result' + (results.length > 1 ? 's' : '') + ' for "' + query + '"';
                 renderIssueCards(results, searchGrid);
+            })
+            .catch(function () {
+                searchCountLabel.textContent = 'Search failed. Please try again.';
             });
     }, 300);
 });
